@@ -1,6 +1,7 @@
 package com.trellowithjava.service;
 
 import com.trellowithjava.model.Card;
+import com.trellowithjava.model.Label;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 public class Trello {
     private static final String CREATE_CARD_URL = "https://api.trello.com/1/cards";
+    private static final String CREATE_LABEL_URL = "https://api.trello.com/1/labels";
 
     String token;
     String key;
@@ -22,12 +24,33 @@ public class Trello {
         this.token = token;
         okHttpClient = new OkHttpClient().newBuilder()
                 .build();
-        MediaType mediaType = MediaType.parse("text/plain");
     }
 
     private String buildUrl(String url) {
         return url + "?key=" + this.key + "&token=" + this.token;
     }
+
+    public boolean createCard(Card card) {
+        try {
+            Map<String, String> maps = convertTrelloObjectToMapReflection(card);
+            return createQuery(buildUrl(CREATE_CARD_URL), maps);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean createLabel(Label label) {
+        try {
+            Map<String, String> maps = convertTrelloObjectToMapReflection(label);
+            return createQuery(buildUrl(CREATE_LABEL_URL), maps);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
 
     private boolean createQuery(String url, Map<String, String> map) {
         try {
@@ -46,10 +69,9 @@ public class Trello {
                     .build();
             Response response = okHttpClient.newCall(request).execute();
             if (response.code() != 200) {
-                System.out.println(response.body());
                 return false;
             }
-            System.out.println(response.body());
+            response.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -57,22 +79,12 @@ public class Trello {
 
     }
 
-    public boolean createCard(Card card) {
-        try {
-            Map<String, String> maps = convertCardToMapReflection(card);
-            return createQuery(buildUrl(CREATE_CARD_URL), maps);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    private static Map<String, String> convertCardToMapReflection(Card card) throws IllegalAccessException {
+    private static Map<String, String> convertTrelloObjectToMapReflection(Object object) throws IllegalAccessException {
         Map<String, String> cardMap = new HashMap<String,String>();
-        Field[] allFields = card.getClass().getDeclaredFields();
+        Field[] allFields = object.getClass().getDeclaredFields();
         for (Field field : allFields) {
             field.setAccessible(true);
-            Object value = field.get(card);
+            Object value = field.get(object);
             if (value instanceof Date) {
                 SimpleDateFormat outFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
                 cardMap.put(field.getName(), outFormat.format(value));
