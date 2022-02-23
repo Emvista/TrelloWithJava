@@ -23,9 +23,9 @@
 
     <distributionManagement>
         <repository>
-            <id>TrelloWithJava</id>
+            <id>github</id>
             <name>GitHub Emvista Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/emvista/TrelloWithJava</url>
+            <url>https://maven.pkg.github.com/Emvista/TrelloWithJava</url>
         </repository>
     </distributionManagement>
 
