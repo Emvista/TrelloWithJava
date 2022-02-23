@@ -1,5 +1,6 @@
 package com.trellowithjava.service;
 
+import com.google.gson.Gson;
 import com.trellowithjava.model.Card;
 import com.trellowithjava.model.Label;
 import okhttp3.*;
@@ -7,13 +8,12 @@ import okhttp3.*;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Trello {
     private static final String CREATE_CARD_URL = "https://api.trello.com/1/cards";
     private static final String CREATE_LABEL_URL = "https://api.trello.com/1/labels";
+    private static final String GET_LABELS_ON_BOARD_URL = "https://api.trello.com/1/boards/{id}/labels";
 
     String token;
     String key;
@@ -33,7 +33,7 @@ public class Trello {
     public boolean createCard(Card card) {
         try {
             Map<String, String> maps = convertTrelloObjectToMapReflection(card);
-            return createQuery(buildUrl(CREATE_CARD_URL), maps);
+            return createPostQuery(buildUrl(CREATE_CARD_URL), maps);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
             return false;
@@ -43,7 +43,7 @@ public class Trello {
     public boolean createLabel(Label label) {
         try {
             Map<String, String> maps = convertTrelloObjectToMapReflection(label);
-            return createQuery(buildUrl(CREATE_LABEL_URL), maps);
+            return createPostQuery(buildUrl(CREATE_LABEL_URL), maps);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
             return false;
@@ -51,8 +51,42 @@ public class Trello {
     }
 
 
+    public List<Label> getLabelsByBoardId(String idBoard) {
+        String url = GET_LABELS_ON_BOARD_URL.replace("{id}", idBoard);
+        Gson gson = new Gson();
+        String json = createGetQuery(buildUrl(url));
+        if (json == null)
+            return new ArrayList<>();
+        List<Label> labels = gson.fromJson(json, ArrayList.class);
+        return labels;
+    }
 
-    private boolean createQuery(String url, Map<String, String> map) {
+    Label fromObject(Object o) {
+        return (Label) o;
+    }
+
+    private String createGetQuery(String url) {
+        try {
+            Request request = new Request.Builder()
+                .url(url)
+                .build();
+            Call call = okHttpClient.newCall(request);
+            Response response = call.execute();
+            if (response.code() != 200) {
+                System.out.println("error code : " + response.code());
+                System.out.println(response.body().string());
+                return null;
+            }
+            String bodyString = response.body().string();
+            response.close();
+            return bodyString;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private boolean createPostQuery(String url, Map<String, String> map) {
         try {
             MultipartBody.Builder bodyBuilder = new MultipartBody.Builder();
             MultipartBody.Builder builder = bodyBuilder.setType(MultipartBody.FORM);
