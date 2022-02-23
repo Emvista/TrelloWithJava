@@ -21,4 +21,12 @@
         </dependency>
     </dependencies>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Emvista Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/emvista/TrelloWithJava</url>
+        </repository>
+    </distributionManagement>
+
 </project>
