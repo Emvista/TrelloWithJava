@@ -10,8 +10,9 @@ Source : https://developer.atlassian.com/cloud/trello/rest/api-group-actions/
 
 ### Card
 
-**Create** : https://api.trello.com/1/cards
+**Create one card** : https://api.trello.com/1/cards
 
 ### Label
 
-**Create** : https://api.trello.com/1/labels
+**Create one label** : https://api.trello.com/1/labels
+**Get label list** : https://api.trello.com/1/boards/{id}/labels 
