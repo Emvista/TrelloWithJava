@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.trellowithjava</groupId>
-    <artifactId>TrelloWithJava</artifactId>
+    <artifactId>trellowithjava</artifactId>
     <version>0.0.2</version>
 
     <properties>
@@ -25,5 +25,13 @@
             <version>2.9.0</version>
         </dependency>
     </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Emvista Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/Emvista/TrelloWithJava</url>
+        </repository>
+    </distributionManagement>
 
 </project>
